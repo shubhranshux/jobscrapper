@@ -3,17 +3,63 @@ import { useState, useEffect, useRef } from 'react';
 import api from '../api/axios';
 
 const keywordSuggestions = [
+  // Engineering & Development
   'Software Engineer', 'Frontend Developer', 'Backend Developer', 'Full Stack Developer',
   'React Developer', 'Node.js Developer', 'Python Developer', 'Java Developer',
-  'Data Scientist', 'Data Analyst', 'Machine Learning Engineer', 'AI Engineer',
-  'DevOps Engineer', 'Cloud Engineer', 'Mobile Developer', 'Flutter Developer',
-  'UI/UX Designer', 'Product Designer', 'Product Manager', 'Project Manager',
-  'Cybersecurity Analyst', 'QA Engineer', 'Business Analyst', 'Digital Marketing',
-  'Content Writer', 'SEO Specialist', 'HR Manager', 'Technical Writer',
-  'Blockchain Developer', 'Web3 Developer', 'Android Developer', 'iOS Developer',
-  'MERN Stack', 'Angular Developer', 'Vue.js Developer', 'Next.js Developer',
-  'Spring Boot Developer', 'Django Developer', 'Go Developer', 'Rust Developer',
-  'Data Engineer', 'ETL Developer', 'Scrum Master', 'Solutions Architect',
+  'Android Developer', 'iOS Developer', 'Mobile Developer', 'Flutter Developer',
+  'React Native Developer', 'MERN Stack Developer', 'MEAN Stack Developer',
+  'Angular Developer', 'Vue.js Developer', 'Next.js Developer', 'TypeScript Developer',
+  'Spring Boot Developer', 'Django Developer', 'Laravel Developer', '.NET Developer',
+  'Go Developer', 'Rust Developer', 'C++ Developer', 'PHP Developer', 'Ruby Developer',
+  'Embedded Systems Engineer', 'Firmware Engineer', 'Microservices Developer',
+  'API Developer', 'GraphQL Developer', 'Blockchain Developer', 'Web3 Developer',
+  'Smart Contract Developer', 'Salesforce Developer', 'SAP Developer', 'ERP Developer',
+  'WordPress Developer', 'Shopify Developer', 'Game Developer', 'Unity Developer',
+  'SDE-1', 'SDE-2', 'SDE-3', 'Staff Engineer', 'Principal Engineer',
+  'Software Engineer Intern', 'Junior Developer', 'Senior Software Engineer',
+  // Data & AI
+  'Data Scientist', 'Data Analyst', 'Data Engineer', 'Machine Learning Engineer',
+  'AI Engineer', 'Deep Learning Engineer', 'NLP Engineer', 'Computer Vision Engineer',
+  'MLOps Engineer', 'AI Research Scientist', 'Business Intelligence Analyst',
+  'Big Data Engineer', 'ETL Developer', 'Spark Developer', 'Hadoop Developer',
+  'Power BI Developer', 'Tableau Developer', 'Analytics Manager',
+  'Quantitative Analyst', 'Statistician', 'Prompt Engineer', 'LLM Engineer',
+  // Cloud & DevOps
+  'DevOps Engineer', 'Cloud Engineer', 'AWS Solutions Architect', 'Azure Engineer',
+  'GCP Engineer', 'Site Reliability Engineer', 'Platform Engineer',
+  'Kubernetes Engineer', 'Infrastructure Engineer', 'Network Engineer',
+  'Linux Administrator', 'Systems Administrator', 'CI/CD Engineer',
+  // Security
+  'Cybersecurity Analyst', 'Security Engineer', 'Penetration Tester',
+  'Ethical Hacker', 'SOC Analyst', 'Cloud Security Engineer', 'CISO',
+  // QA & Testing
+  'QA Engineer', 'SDET', 'Automation Test Engineer', 'Performance Tester',
+  'Manual Tester', 'Selenium Tester', 'Test Architect',
+  // Design
+  'UI/UX Designer', 'Product Designer', 'Visual Designer', 'UX Researcher',
+  'Interaction Designer', 'Graphic Designer', 'Motion Designer', 'Web Designer',
+  '3D Designer', 'Design Lead', 'Creative Director',
+  // Management & Strategy
+  'Product Manager', 'Project Manager', 'Scrum Master', 'Agile Coach',
+  'Engineering Manager', 'Technical Program Manager', 'Delivery Manager',
+  'Solutions Architect', 'Technical Lead', 'CTO', 'VP Engineering',
+  // Business & Operations
+  'Business Analyst', 'Management Consultant', 'Operations Manager',
+  'Account Manager', 'Customer Success Manager', 'Sales Engineer',
+  'Pre-Sales Consultant', 'Business Development Manager',
+  // Marketing & Content
+  'Digital Marketing Manager', 'Content Writer', 'SEO Specialist',
+  'Social Media Manager', 'Growth Hacker', 'Performance Marketing',
+  'Brand Manager', 'Content Strategist', 'Copywriter', 'PPC Specialist',
+  'Email Marketing Specialist', 'Community Manager',
+  // HR & Recruiting
+  'HR Manager', 'Technical Recruiter', 'Talent Acquisition Specialist',
+  'HR Business Partner', 'People Operations Manager',
+  // Other
+  'Technical Writer', 'Database Administrator', 'Support Engineer',
+  'Implementation Specialist', 'IT Manager', 'Help Desk Engineer',
+  'Finance Analyst', 'Investment Banker', 'Chartered Accountant',
+  'Supply Chain Manager', 'Logistics Manager', 'Operations Analyst',
 ];
 
 export default function SearchBar({ onSearch, loading }) {

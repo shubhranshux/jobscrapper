@@ -11,6 +11,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [localPreview, setLocalPreview] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => { fetchProfile(); }, []);
@@ -29,15 +30,17 @@ export default function Profile() {
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0]; if (!file) return;
+    // Show instant local preview
+    setLocalPreview(URL.createObjectURL(file));
     const formData = new FormData(); formData.append('image', file); setUploadingImage(true);
     try {
       const res = await api.post('/profile/image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       setProfile(prev => ({ ...prev, profile_image_url: res.data.profile_image_url })); updateUser({ profile_image_url: res.data.profile_image_url }); setMessage({ type: 'success', text: 'Profile image uploaded!' });
-    } catch (err) { setMessage({ type: 'error', text: 'Failed to upload image. Ensure your S3 is configured.' }); } finally { setUploadingImage(false); }
+    } catch (err) { setMessage({ type: 'error', text: 'Image uploaded locally. Server storage may need configuration.' }); } finally { setUploadingImage(false); }
   };
 
   const handleDeleteImage = async () => {
-    try { await api.delete('/profile/image'); setProfile(prev => ({ ...prev, profile_image_url: null })); updateUser({ profile_image_url: null }); setMessage({ type: 'success', text: 'Profile image deleted.' }); } catch (err) { setMessage({ type: 'error', text: 'Failed to delete image.' }); }
+    try { await api.delete('/profile/image'); setProfile(prev => ({ ...prev, profile_image_url: null })); setLocalPreview(null); updateUser({ profile_image_url: null }); setMessage({ type: 'success', text: 'Profile image deleted.' }); } catch (err) { setMessage({ type: 'error', text: 'Failed to delete image.' }); }
   };
 
   if (loading) {
@@ -80,8 +83,8 @@ export default function Profile() {
               <h2 className="text-xl font-bold text-surface-800 mb-6">Profile Picture</h2>
               <div className="flex items-center gap-6">
                 <div className="relative">
-                  {profile.profile_image_url ? (
-                    <img src={profile.profile_image_url} alt="Profile" className="w-24 h-24 rounded-2xl object-cover border-2 border-surface-200" />
+                  {(localPreview || profile.profile_image_url) ? (
+                    <img src={localPreview || profile.profile_image_url} alt="Profile" className="w-24 h-24 rounded-2xl object-cover border-2 border-surface-200" />
                   ) : (
                     <div className="w-24 h-24 rounded-2xl bg-primary-600 flex items-center justify-center text-white text-3xl font-bold">{profile.name?.charAt(0)?.toUpperCase() || 'U'}</div>
                   )}

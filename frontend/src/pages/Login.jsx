@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import GradientBlinds from '../components/GradientBlinds';
 import { Mail, Lock, Eye, EyeOff, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function Login() {
@@ -36,34 +35,23 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Panel - Branding with GradientBlinds */}
+      {/* Left Panel - Branding with Animated Gradient */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center">
-        <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
-          <GradientBlinds
-            gradientColors={['#c7d2fe', '#818cf8', '#a78bfa', '#c084fc', '#e0e7ff']}
-            angle={30}
-            noise={0.12}
-            blindCount={18}
-            blindMinWidth={80}
-            mouseDampening={0.15}
-            spotlightRadius={0.5}
-            spotlightSoftness={1}
-            spotlightOpacity={0.7}
-            distortAmount={1.5}
-            mixBlendMode="normal"
-          />
-        </div>
-        <div className="absolute inset-0 z-[1] bg-white/30 pointer-events-none" />
+        <div className="absolute inset-0 auth-gradient-bg" />
+        <div className="absolute inset-0 auth-gradient-orb auth-gradient-orb-1" />
+        <div className="absolute inset-0 auth-gradient-orb auth-gradient-orb-2" />
+        <div className="absolute inset-0 auth-gradient-orb auth-gradient-orb-3" />
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px] pointer-events-none" />
         
         <motion.div className="relative z-10 max-w-md text-center" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}>
           <motion.div
-            className="w-20 h-20 mx-auto mb-8 rounded-3xl bg-white/70 backdrop-blur-sm flex items-center justify-center border border-primary-200 shadow-sm"
+            className="w-20 h-20 mx-auto mb-8 rounded-3xl bg-white/70 backdrop-blur-sm flex items-center justify-center border border-white/40 shadow-lg"
             initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, delay: 0.4 }}
           >
             <Sparkles className="w-10 h-10 text-primary-600" />
           </motion.div>
-          <h1 className="text-4xl font-black text-surface-800 mb-4">Welcome Back!</h1>
-          <p className="text-lg text-surface-500 leading-relaxed">
+          <h1 className="text-4xl font-black text-white mb-4 drop-shadow-sm">Welcome Back!</h1>
+          <p className="text-lg text-white/80 leading-relaxed">
             Continue your job search journey with AI-powered insights and smart matching.
           </p>
         </motion.div>

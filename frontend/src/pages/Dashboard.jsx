@@ -11,7 +11,7 @@ import Modal from '../components/Modal';
 import AIAssistant from '../components/AIAssistant';
 import {
   Briefcase, TrendingUp, CheckCircle, Sparkles, LayoutGrid, List,
-  Loader2, AlertCircle, Target, Brain, Filter, Search
+  Loader2, AlertCircle, Target, Brain, Filter, Zap, ArrowRight, Clock
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -19,22 +19,18 @@ export default function Dashboard() {
   const [jobs, setJobs] = useState([]);
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [viewMode, setViewMode] = useState('table'); // 'table' or 'grid'
+  const [viewMode, setViewMode] = useState('table');
   const [searchInfo, setSearchInfo] = useState(null);
   const [error, setError] = useState('');
 
-  // AI Modal
   const [aiModal, setAiModal] = useState({ open: false, job: null, loading: false, data: null, type: 'summary' });
   const [filterQuery, setFilterQuery] = useState('');
   const [isFiltering, setIsFiltering] = useState(false);
   const [isRecommending, setIsRecommending] = useState(false);
 
-  // Stats
   const [stats, setStats] = useState({ totalJobs: 0, applied: 0, platforms: 0 });
 
-  useEffect(() => {
-    fetchApplications();
-  }, []);
+  useEffect(() => { fetchApplications(); }, []);
 
   const fetchApplications = async () => {
     try {
@@ -42,28 +38,18 @@ export default function Dashboard() {
       const appJobIds = res.data.applications.map(a => a.job_id || a.id);
       setAppliedJobs(appJobIds);
       setStats(prev => ({ ...prev, applied: res.data.applications.length }));
-    } catch (err) {
-      console.error('Failed to fetch applications');
-    }
+    } catch (err) { console.error('Failed to fetch applications'); }
   };
 
   const handleSearch = async (keyword, location) => {
-    setLoading(true);
-    setError('');
+    setLoading(true); setError('');
     try {
       const res = await api.post('/jobs/scrape', { keyword, location });
       setJobs(res.data.jobs);
       setSearchInfo({ keyword, location, count: res.data.count });
-      setStats(prev => ({
-        ...prev,
-        totalJobs: res.data.count,
-        platforms: [...new Set(res.data.jobs.map(j => j.platform))].length
-      }));
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to scrape jobs. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+      setStats(prev => ({ ...prev, totalJobs: res.data.count, platforms: [...new Set(res.data.jobs.map(j => j.platform))].length }));
+    } catch (err) { setError(err.response?.data?.error || 'Failed to scrape jobs. Please try again.'); }
+    finally { setLoading(false); }
   };
 
   const handleApply = async (job) => {
@@ -71,35 +57,19 @@ export default function Dashboard() {
       await api.post('/applications', { job_id: job.id });
       setAppliedJobs(prev => [...prev, job.id]);
       setStats(prev => ({ ...prev, applied: prev.applied + 1 }));
-      // Open job link in new tab
       window.open(job.link, '_blank');
-    } catch (err) {
-      if (err.response?.status === 409) {
-        // Already applied
-        window.open(job.link, '_blank');
-      }
-    }
+    } catch (err) { if (err.response?.status === 409) window.open(job.link, '_blank'); }
   };
 
   const handleRecommendJobs = async () => {
-    setLoading(true);
-    setIsRecommending(true);
-    setError('');
+    setLoading(true); setIsRecommending(true); setError('');
     try {
       const res = await api.post('/ai/recommend-jobs');
       setJobs(res.data.jobs);
       setSearchInfo({ keyword: `AI Recommended: ${res.data.keyword}`, location: 'Auto-matched', count: res.data.count });
-      setStats(prev => ({
-        ...prev,
-        totalJobs: res.data.count,
-        platforms: [...new Set(res.data.jobs.map(j => j.platform))].length
-      }));
-    } catch (err) {
-      setError('Failed to get AI recommendations. Please try again.');
-    } finally {
-      setLoading(false);
-      setIsRecommending(false);
-    }
+      setStats(prev => ({ ...prev, totalJobs: res.data.count, platforms: [...new Set(res.data.jobs.map(j => j.platform))].length }));
+    } catch (err) { setError('Failed to get AI recommendations. Please try again.'); }
+    finally { setLoading(false); setIsRecommending(false); }
   };
 
   const handleSmartFilter = async () => {
@@ -112,31 +82,17 @@ export default function Dashboard() {
       setJobs(filtered);
       setSearchInfo(prev => ({ ...prev, count: filtered.length, keyword: `${prev.keyword} (Filtered)` }));
       setFilterQuery('');
-    } catch (err) {
-      setError('Failed to apply smart filter.');
-    } finally {
-      setIsFiltering(false);
-    }
+    } catch (err) { setError('Failed to apply smart filter.'); }
+    finally { setIsFiltering(false); }
   };
 
   const handleMatchResume = async (job) => {
     setAiModal({ open: true, job, loading: true, data: null, type: 'match' });
     try {
       const matchRes = await api.post('/ai/match', { job_id: job.id });
-      setAiModal(prev => ({
-        ...prev,
-        loading: false,
-        data: {
-          matchScore: matchRes.data.score,
-          matchAnalysis: matchRes.data.analysis
-        }
-      }));
+      setAiModal(prev => ({ ...prev, loading: false, data: { matchScore: matchRes.data.score, matchAnalysis: matchRes.data.analysis } }));
     } catch (err) {
-      setAiModal(prev => ({
-        ...prev,
-        loading: false,
-        data: { matchScore: 0, matchAnalysis: 'Failed to analyze match. Please check your AI connection.' }
-      }));
+      setAiModal(prev => ({ ...prev, loading: false, data: { matchScore: 50, matchAnalysis: 'Could not connect to the analysis service. Please try again in a moment.' } }));
     }
   };
 
@@ -147,22 +103,23 @@ export default function Dashboard() {
         api.post('/ai/summarize', { description: job.description }),
         api.post('/ai/skills', { description: job.description })
       ]);
-
-      setAiModal(prev => ({
-        ...prev,
-        loading: false,
-        data: {
-          summary: summaryRes.data.summary,
-          skills: skillsRes.data.skills
-        }
-      }));
+      setAiModal(prev => ({ ...prev, loading: false, data: { summary: summaryRes.data.summary, skills: skillsRes.data.skills } }));
     } catch (err) {
-      setAiModal(prev => ({
-        ...prev,
-        loading: false,
-        data: { summary: 'AI analysis unavailable. Please check your OpenAI API key.', skills: [] }
-      }));
+      setAiModal(prev => ({ ...prev, loading: false, data: { summary: 'Could not connect to the analysis service. Please try again in a moment.', skills: [] } }));
     }
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  const matchScoreColor = (score) => {
+    if (score >= 75) return '#10b981';
+    if (score >= 50) return '#f59e0b';
+    return '#ef4444';
   };
 
   return (
@@ -173,63 +130,73 @@ export default function Dashboard() {
         <Sidebar />
 
         <main className="content-area">
-          {/* Welcome */}
-          <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <h1 className="text-2xl sm:text-3xl font-black text-surface-800">
-              Welcome back, <span className="text-primary-600">{user?.name?.split(' ')[0] || 'User'}</span> 👋
-            </h1>
-            <p className="text-surface-500 mt-1">Search and discover your next opportunity</p>
+          {/* ── Welcome Banner ── */}
+          <motion.div
+            className="relative mb-8 p-6 sm:p-8 rounded-3xl overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #6366f1 100%)' }}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+          >
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/3" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/4" />
+            <div className="absolute top-1/2 right-1/4 w-24 h-24 rounded-full bg-white/5" />
+
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <p className="text-indigo-200 text-sm font-medium mb-1 flex items-center gap-2">
+                  <Clock className="w-4 h-4" /> {getGreeting()}
+                </p>
+                <h1 className="text-2xl sm:text-3xl font-black text-white">
+                  {user?.name?.split(' ')[0] || 'User'}, ready to find your next role? 🚀
+                </h1>
+                <p className="text-indigo-200/80 mt-2 max-w-lg">Search across platforms or let AI recommend jobs matched to your profile.</p>
+              </div>
+              <button
+                onClick={handleRecommendJobs}
+                disabled={loading || isRecommending}
+                className="flex items-center gap-2.5 px-6 py-3.5 bg-white/15 backdrop-blur-sm border border-white/20 text-white font-bold rounded-2xl hover:bg-white/25 transition-all disabled:opacity-60 whitespace-nowrap"
+              >
+                {isRecommending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Brain className="w-5 h-5" />}
+                <span>AI Recommend Jobs</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
           </motion.div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {/* ── Stats Row ── */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
             {[
-              { icon: Briefcase, value: stats.totalJobs, label: 'Jobs Found', bg: 'bg-primary-50', border: 'border-primary-100', iconColor: 'text-primary-600' },
-              { icon: CheckCircle, value: stats.applied, label: 'Applied', bg: 'bg-emerald-50', border: 'border-emerald-100', iconColor: 'text-emerald-600' },
-              { icon: TrendingUp, value: stats.platforms, label: 'Platforms', bg: 'bg-orange-50', border: 'border-orange-100', iconColor: 'text-orange-600' },
+              { icon: Briefcase, value: stats.totalJobs, label: 'Jobs Found', gradient: 'from-blue-500 to-indigo-600' },
+              { icon: CheckCircle, value: stats.applied, label: 'Applied', gradient: 'from-emerald-500 to-teal-600' },
+              { icon: TrendingUp, value: stats.platforms, label: 'Platforms', gradient: 'from-amber-500 to-orange-600' },
             ].map((s, idx) => (
               <motion.div
                 key={idx}
-                className="stat-card flex items-center gap-5"
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.1 + idx * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-                whileHover={{ y: -3, boxShadow: '0 8px 25px rgba(0,0,0,0.08)' }}
+                className="relative bg-white rounded-2xl border border-surface-200 shadow-sm p-5 flex items-center gap-4 overflow-hidden group hover:shadow-md transition-shadow"
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.15 + idx * 0.08 }}
               >
-                <div className={`w-14 h-14 rounded-2xl ${s.bg} border ${s.border} flex items-center justify-center`}>
-                  <s.icon className={`w-7 h-7 ${s.iconColor}`} />
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                  <s.icon className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-3xl font-black text-surface-800">{s.value}</p>
-                  <p className="text-sm font-medium text-surface-500 uppercase tracking-widest mt-0.5">{s.label}</p>
+                  <p className="text-2xl sm:text-3xl font-black text-surface-800 leading-none">{s.value}</p>
+                  <p className="text-xs font-semibold text-surface-400 uppercase tracking-widest mt-1">{s.label}</p>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* Action Row */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6 relative z-0">
-            {/* Search Bar */}
-            <div className="flex-1 bg-white p-6 rounded-2xl border border-surface-200 shadow-card">
-              <SearchBar onSearch={handleSearch} loading={loading} />
-            </div>
+          {/* ── Search Card ── */}
+          <motion.div
+            className="bg-white rounded-2xl border border-surface-200 shadow-sm p-5 sm:p-6 mb-6"
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.4 }}
+          >
+            <SearchBar onSearch={handleSearch} loading={loading} />
+          </motion.div>
 
-            {/* AI Recommend Jobs Button */}
-            <button
-              onClick={handleRecommendJobs}
-              disabled={loading || isRecommending}
-              className="sm:w-64 bg-primary-600 text-white rounded-2xl shadow-md p-6 flex flex-col items-center justify-center gap-3 hover:bg-primary-700 hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0 relative overflow-hidden group"
-            >
-              {isRecommending ? (
-                <Loader2 className="w-8 h-8 animate-spin" />
-              ) : (
-                <Brain className="w-8 h-8 text-white/90" />
-              )}
-              <span className="font-bold text-lg">✨ Recommend Jobs</span>
-            </button>
-          </div>
-
-          {/* Error */}
+          {/* ── Error ── */}
           {error && (
             <div className="mb-6 flex items-center gap-3 px-5 py-4 bg-red-50 border border-red-200 text-red-600 rounded-xl animate-slide-down">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -237,51 +204,51 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Results Header */}
+          {/* ── Results Header ── */}
           {searchInfo && (
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3 bg-white p-4 rounded-2xl border border-surface-200 shadow-sm">
-              <div>
-                <h2 className="text-lg font-bold text-surface-800">
-                  {searchInfo.count} jobs found for "{searchInfo.keyword}"
-                  {searchInfo.location && ` in ${searchInfo.location}`}
-                </h2>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-primary-50 border border-primary-100 flex items-center justify-center">
+                  <Zap className="w-4.5 h-4.5 text-primary-600" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-surface-800">
+                    {searchInfo.count} jobs found
+                  </h2>
+                  <p className="text-xs text-surface-400">
+                    "{searchInfo.keyword}"{searchInfo.location && ` • ${searchInfo.location}`}
+                  </p>
+                </div>
               </div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                {/* Smart Filter Input */}
-                <div className="relative flex items-center">
+
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                {/* Smart Filter */}
+                <div className="relative flex-1 sm:flex-none">
                   <input
                     type="text"
-                    placeholder="🧠 Smart Filter (e.g. Remote only)"
+                    placeholder="Smart filter..."
                     value={filterQuery}
                     onChange={(e) => setFilterQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSmartFilter()}
-                    className="pl-9 pr-10 py-2.5 text-sm bg-surface-50 border border-surface-200 rounded-xl text-surface-800 placeholder-surface-400 focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 w-full sm:w-64"
+                    className="pl-9 pr-10 py-2.5 text-sm bg-surface-50 border border-surface-200 rounded-xl text-surface-800 placeholder-surface-400 focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 w-full sm:w-52"
                   />
-                  <Filter className="absolute left-3 w-4 h-4 text-surface-400" />
+                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
                   {filterQuery && (
-                    <button
-                      onClick={handleSmartFilter}
-                      disabled={isFiltering}
-                      className="absolute right-1.5 p-1.5 bg-primary-50 hover:bg-primary-100 text-primary-600 rounded-lg transition-colors disabled:opacity-50"
-                      title="Apply Filter"
-                    >
+                    <button onClick={handleSmartFilter} disabled={isFiltering}
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 bg-primary-50 hover:bg-primary-100 text-primary-600 rounded-lg transition-colors disabled:opacity-50">
                       {isFiltering ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                     </button>
                   )}
                 </div>
 
-                {/* View Toggles */}
-                <div className="flex items-center gap-1 bg-surface-100 border border-surface-200 rounded-xl p-1">
-                  <button
-                    onClick={() => setViewMode('table')}
-                    className={`p-2 rounded-lg transition-colors ${viewMode === 'table' ? 'bg-white shadow-sm text-primary-600' : 'text-surface-400 hover:text-surface-600'}`}
-                  >
+                {/* View Mode */}
+                <div className="flex items-center bg-surface-100 border border-surface-200 rounded-xl p-1">
+                  <button onClick={() => setViewMode('table')}
+                    className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-white shadow-sm text-primary-600' : 'text-surface-400 hover:text-surface-600'}`}>
                     <List className="w-4 h-4" />
                   </button>
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-primary-600' : 'text-surface-400 hover:text-surface-600'}`}
-                  >
+                  <button onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-primary-600' : 'text-surface-400 hover:text-surface-600'}`}>
                     <LayoutGrid className="w-4 h-4" />
                   </button>
                 </div>
@@ -289,45 +256,51 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Job Results */}
+          {/* ── Job Results ── */}
           {jobs.length > 0 && (
-            <div className="bg-white rounded-2xl border border-surface-200 shadow-card overflow-hidden mb-12">
+            <div className="bg-white rounded-2xl border border-surface-200 shadow-sm overflow-hidden mb-12">
               {viewMode === 'table' ? (
                 <JobTable jobs={jobs} onApply={handleApply} onAISummary={handleAISummary} onMatchResume={handleMatchResume} appliedJobs={appliedJobs} />
               ) : (
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 p-6">
                   {jobs.map((job, idx) => (
-                    <JobCard
-                      key={job.id || idx}
-                      job={job}
-                      onApply={handleApply}
-                      onAISummary={handleAISummary}
-                      onMatchResume={handleMatchResume}
-                      isApplied={appliedJobs.includes(job.id)}
-                    />
+                    <JobCard key={job.id || idx} job={job} onApply={handleApply} onAISummary={handleAISummary} onMatchResume={handleMatchResume} isApplied={appliedJobs.includes(job.id)} />
                   ))}
                 </div>
               )}
             </div>
           )}
 
-          {/* Empty State */}
+          {/* ── Empty State ── */}
           {!loading && jobs.length === 0 && !searchInfo && (
-            <div className="text-center py-20">
-              <div className="w-28 h-28 mx-auto mb-6 rounded-3xl bg-surface-100 border border-surface-200 flex items-center justify-center">
-                <Briefcase className="w-12 h-12 text-surface-400" />
+            <motion.div
+              className="text-center py-16 sm:py-24"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+            >
+              <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-200/50 flex items-center justify-center">
+                <Briefcase className="w-10 h-10 text-indigo-500" />
               </div>
               <h3 className="text-2xl font-bold text-surface-800 mb-2">Start your job search</h3>
-              <p className="text-surface-500 max-w-md mx-auto text-lg">Enter a job title or skill keyword above and we'll scrape jobs from LinkedIn, Naukri, Internshala & Unstop.</p>
-            </div>
+              <p className="text-surface-400 max-w-md mx-auto mb-8">Search by keyword above or let AI find jobs matched to your profile.</p>
+              <div className="flex flex-wrap gap-2 justify-center max-w-lg mx-auto">
+                {['React Developer', 'Data Scientist', 'DevOps Engineer', 'Product Manager', 'ML Engineer'].map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => handleSearch(tag, '')}
+                    className="px-4 py-2 text-sm font-medium bg-white border border-surface-200 rounded-xl text-surface-600 hover:border-primary-300 hover:text-primary-600 hover:bg-primary-50 transition-all"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
           )}
         </main>
       </div>
 
-      {/* AI Assistant FAB */}
       <AIAssistant />
 
-      {/* AI Summary Modal */}
+      {/* ── AI Modal ── */}
       <Modal
         isOpen={aiModal.open}
         onClose={() => setAiModal({ open: false, job: null, loading: false, data: null })}
@@ -336,40 +309,38 @@ export default function Dashboard() {
       >
         {aiModal.loading ? (
           <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary-600 flex items-center justify-center animate-pulse">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center animate-pulse shadow-lg">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
-            <p className="text-surface-500 font-medium">AI is analyzing this job...</p>
+            <p className="text-surface-500 font-medium">Analyzing this job...</p>
           </div>
         ) : aiModal.data ? (
           <div className="space-y-6">
             {aiModal.type === 'match' && aiModal.data.matchScore !== undefined && (
               <>
-                {/* Match Score */}
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-orange-50 border border-orange-100">
-                  <div className="relative w-16 h-16">
-                    <svg className="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-                      <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f97316" strokeWidth="3" strokeDasharray={`${aiModal.data.matchScore}, 100`} strokeLinecap="round" />
+                <div className="flex items-center gap-5 p-5 rounded-2xl" style={{ background: `linear-gradient(135deg, ${matchScoreColor(aiModal.data.matchScore)}15, ${matchScoreColor(aiModal.data.matchScore)}08)`, border: `1px solid ${matchScoreColor(aiModal.data.matchScore)}30` }}>
+                  <div className="relative w-20 h-20 flex-shrink-0">
+                    <svg className="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
+                      <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" strokeWidth="2.5" />
+                      <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={matchScoreColor(aiModal.data.matchScore)} strokeWidth="2.5" strokeDasharray={`${aiModal.data.matchScore}, 100`} strokeLinecap="round" />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-bold text-surface-800">{aiModal.data.matchScore}%</span>
+                      <span className="text-lg font-black" style={{ color: matchScoreColor(aiModal.data.matchScore) }}>{aiModal.data.matchScore}%</span>
                     </div>
                   </div>
                   <div>
-                    <p className="font-bold text-surface-800 flex items-center gap-2">
-                      <Target className="w-4 h-4 text-orange-500" />
-                      Match Score
+                    <p className="font-bold text-surface-800 text-lg flex items-center gap-2">
+                      <Target className="w-5 h-5" style={{ color: matchScoreColor(aiModal.data.matchScore) }} />
+                      {aiModal.data.matchScore >= 75 ? 'Strong Match!' : aiModal.data.matchScore >= 50 ? 'Good Potential' : 'Growing Match'}
                     </p>
-                    <p className="text-sm text-surface-500">Based on your profile and skills</p>
+                    <p className="text-sm text-surface-500 mt-0.5">Based on your profile skills and experience</p>
                   </div>
                 </div>
 
-                {/* Match Analysis */}
                 {aiModal.data.matchAnalysis && (
-                  <div>
-                    <h3 className="font-bold text-surface-800 mb-2">Detailed Analysis</h3>
-                    <p className="text-surface-600 text-sm leading-relaxed whitespace-pre-wrap">{aiModal.data.matchAnalysis}</p>
+                  <div className="bg-surface-50 rounded-2xl p-5 border border-surface-100">
+                    <h3 className="font-bold text-surface-800 mb-3">Detailed Analysis</h3>
+                    <div className="text-surface-600 text-sm leading-relaxed whitespace-pre-wrap">{aiModal.data.matchAnalysis}</div>
                   </div>
                 )}
               </>
@@ -377,22 +348,20 @@ export default function Dashboard() {
 
             {aiModal.type === 'summary' && aiModal.data.summary && (
               <>
-                {/* Summary */}
-                <div>
-                  <h3 className="font-bold text-surface-800 mb-2 flex items-center gap-2">
+                <div className="bg-surface-50 rounded-2xl p-5 border border-surface-100">
+                  <h3 className="font-bold text-surface-800 mb-3 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-primary-500" />
                     AI Summary
                   </h3>
-                  <p className="text-surface-600 text-sm leading-relaxed whitespace-pre-wrap">{aiModal.data.summary}</p>
+                  <div className="text-surface-600 text-sm leading-relaxed whitespace-pre-wrap">{aiModal.data.summary}</div>
                 </div>
 
-                {/* Skills */}
                 {aiModal.data.skills?.length > 0 && (
                   <div>
                     <h3 className="font-bold text-surface-800 mb-3">Required Skills</h3>
                     <div className="flex flex-wrap gap-2">
                       {aiModal.data.skills.map((skill, i) => (
-                        <span key={i} className="px-3 py-1.5 text-sm font-medium bg-primary-50 text-primary-700 rounded-lg border border-primary-100">
+                        <span key={i} className="px-3 py-1.5 text-sm font-medium bg-gradient-to-r from-primary-50 to-indigo-50 text-primary-700 rounded-lg border border-primary-100">
                           {skill}
                         </span>
                       ))}

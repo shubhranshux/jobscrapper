@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import GradientBlinds from '../components/GradientBlinds';
 import { Mail, Lock, User, Eye, EyeOff, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function Signup() {
@@ -33,33 +32,24 @@ export default function Signup() {
   return (
     <div className="min-h-screen flex">
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center">
-        <div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: 0.5 }}>
-          <GradientBlinds
-            gradientColors={['#a5b4fc', '#6366f1', '#818cf8', '#a78bfa', '#c7d2fe']}
-            angle={30}
-            noise={0.12}
-            blindCount={18}
-            blindMinWidth={80}
-            mouseDampening={0.15}
-            spotlightRadius={0.5}
-            spotlightSoftness={1}
-            spotlightOpacity={0.7}
-            distortAmount={1.5}
-            mixBlendMode="lighten"
-          />
-        </div>
-        <div className="absolute inset-0 z-[1] bg-white/30 pointer-events-none" />
+        {/* Animated Gradient Mesh Background */}
+        <div className="absolute inset-0 auth-gradient-bg" />
+        <div className="absolute inset-0 auth-gradient-orb auth-gradient-orb-1" />
+        <div className="absolute inset-0 auth-gradient-orb auth-gradient-orb-2" />
+        <div className="absolute inset-0 auth-gradient-orb auth-gradient-orb-3" />
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px] pointer-events-none" />
+
         <div className="relative z-10 max-w-md text-center p-12">
-          <div className="w-20 h-20 mx-auto mb-8 rounded-3xl bg-white/70 backdrop-blur-sm flex items-center justify-center border border-primary-200 shadow-sm">
+          <div className="w-20 h-20 mx-auto mb-8 rounded-3xl bg-white/70 backdrop-blur-sm flex items-center justify-center border border-white/40 shadow-lg">
             <Sparkles className="w-10 h-10 text-primary-600" />
           </div>
-          <h1 className="text-4xl font-black text-surface-800 mb-4">Join HireHarvester</h1>
-          <p className="text-lg text-surface-500 leading-relaxed">Create your account and start discovering jobs with the power of AI.</p>
+          <h1 className="text-4xl font-black text-white mb-4 drop-shadow-sm">Join HireHarvester</h1>
+          <p className="text-lg text-white/80 leading-relaxed">Create your account and start discovering jobs with the power of AI.</p>
           <div className="mt-10 space-y-4 text-left">
             {['Multi-platform job scraping', 'AI-powered job matching', 'Application tracking dashboard'].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-surface-600">
-                <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3.5 h-3.5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
+              <div key={i} className="flex items-center gap-3 text-white/90">
+                <div className="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
                 </div>
                 <span className="text-sm font-medium">{item}</span>
               </div>

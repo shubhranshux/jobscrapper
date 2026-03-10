@@ -212,3 +212,62 @@
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   }
 }
+
+/* Auth Page Animated Gradient Mesh */
+.auth-gradient-bg {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 30%, #6366f1 60%, #8b5cf6 100%);
+}
+
+.auth-gradient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+.auth-gradient-orb-1 {
+  width: 60%;
+  height: 60%;
+  top: -10%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.8) 0%, transparent 70%);
+  animation: auth-orb-float-1 8s ease-in-out infinite;
+}
+
+.auth-gradient-orb-2 {
+  width: 50%;
+  height: 50%;
+  bottom: -10%;
+  right: -10%;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.8) 0%, transparent 70%);
+  animation: auth-orb-float-2 10s ease-in-out infinite;
+}
+
+.auth-gradient-orb-3 {
+  width: 40%;
+  height: 40%;
+  top: 40%;
+  left: 30%;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.6) 0%, transparent 70%);
+  animation: auth-orb-float-3 12s ease-in-out infinite;
+}
+
+@keyframes auth-orb-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(15%, 20%) scale(1.1); }
+  66% { transform: translate(-10%, 10%) scale(0.95); }
+}
+
+@keyframes auth-orb-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-20%, -15%) scale(1.05); }
+  66% { transform: translate(10%, -20%) scale(1.1); }
+}
+
+@keyframes auth-orb-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20%, -10%) scale(1.15); }
+  66% { transform: translate(-15%, 15%) scale(0.9); }
+}

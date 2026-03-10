@@ -32,7 +32,7 @@ export default function AIAssistant() {
     } catch (error) {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: "I'm sorry, I couldn't process your request right now. Please try again later."
+        content: "Sorry, I couldn't connect to the server. Please make sure the backend is running and try again."
       }]);
     } finally {
       setLoading(false);
@@ -76,7 +76,7 @@ export default function AIAssistant() {
               </div>
               <div>
                 <h3 className="font-bold text-sm">AI Career Assistant</h3>
-                <p className="text-xs text-white/70">Powered by AI</p>
+                <p className="text-xs text-white/70">Built-in Intelligence</p>
               </div>
             </div>
           </div>
@@ -89,7 +89,7 @@ export default function AIAssistant() {
                   msg.role === 'user'
                     ? 'bg-primary-600 text-white rounded-br-md'
                     : 'bg-surface-100 text-surface-700 rounded-bl-md'
-                }`}>
+                }`} style={{ whiteSpace: 'pre-wrap' }}>
                   {msg.content}
                 </div>
               </div>
