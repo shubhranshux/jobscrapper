@@ -48,7 +48,7 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
-    storage: 'local (SQLite + filesystem)'
+    storage: 'PostgreSQL (Neon) + AWS S3'
   });
 });
 
@@ -62,7 +62,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`\n🚀 JobScrapper API running on http://localhost:${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`💾 Storage: Local (SQLite + filesystem)\n`);
+  console.log(`💾 Storage: PostgreSQL (Neon) + AWS S3\n`);
 });
 
 module.exports = app;

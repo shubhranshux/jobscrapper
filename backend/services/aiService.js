@@ -6,8 +6,16 @@ const openai = new OpenAI({
 });
 
 const isConfigured = () => {
-  return process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-your-openai-api-key';
+  return process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-your-openai-api-key' && process.env.OPENAI_API_KEY !== 'dummy-key';
 };
+
+// Log API key status at startup
+if (isConfigured()) {
+  console.log('✅ OpenAI API key configured — AI features enabled');
+} else {
+  console.log('⚠️  OpenAI API key not configured — AI features will use fallback/mock responses');
+  console.log('   Set OPENAI_API_KEY in your .env file to enable real AI features');
+}
 
 /**
  * Summarize a job description

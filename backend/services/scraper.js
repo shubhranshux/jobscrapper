@@ -426,21 +426,24 @@ function generateJobs(keyword, validLocation, platform, count) {
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
     let link;
+    const encodedTitle = encodeURIComponent(title);
+    const encodedCompany = encodeURIComponent(company);
+    const searchQuery = encodeURIComponent(`${title} ${company}`);
     switch (platform) {
       case 'LinkedIn':
-        link = `https://www.linkedin.com/jobs/view/${1000000 + Math.floor(Math.random() * 9000000)}`;
+        link = `https://www.linkedin.com/jobs/search/?keywords=${searchQuery}&location=${encodeURIComponent(jobLocation)}`;
         break;
       case 'Naukri':
-        link = `https://www.naukri.com/${slug}-at-${company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-jd-${Math.floor(Math.random() * 900000)}`;
+        link = `https://www.naukri.com/${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-jobs-in-${jobLocation.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
         break;
       case 'Internshala':
-        link = `https://internshala.com/internship/detail/${slug}-at-${company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Math.floor(Math.random() * 90000)}`;
+        link = `https://internshala.com/internships/${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-internship-in-${jobLocation.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
         break;
       case 'Unstop':
-        link = `https://unstop.com/jobs/${slug}-${company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Math.floor(Math.random() * 90000)}`;
+        link = `https://unstop.com/jobs?search=${searchQuery}`;
         break;
       default:
-        link = `https://example.com/jobs/${Math.floor(Math.random() * 90000)}`;
+        link = `https://www.google.com/search?q=${searchQuery}+jobs`;
     }
 
     jobs.push({
